@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f766e">
+<title>SahayaLink</title>
+<style>
+:root{
+  --t900:#134e4a;--t800:#115e59;--t700:#0f766e;--t600:#0d9488;--t500:#14b8a6;--t300:#5eead4;
+  --t200:#99f6e4;--t100:#ccfbf1;--t50:#f0fdfa;
+  --ink:#1c2b2a;--muted:#5d6f6d;--line:#d6e4e2;--bg:#f2f7f6;--card:#ffffff;
+  --ok:#15803d;--okbg:#e3f6e8;--bad:#b91c1c;--badbg:#fdeaea;
+}
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+button,input,select,textarea{font-family:Arial,Helvetica,sans-serif;font-size:14px}
+.hidden{display:none!important}
+.muted{color:var(--muted)}.small{font-size:12.5px}.b{font-weight:700}
+
+/* ---------- login ---------- */
+#login{min-height:100vh;background:linear-gradient(160deg,var(--t800),var(--t600));padding:32px 16px}
+.login-wrap{max-width:920px;margin:0 auto}
+.brand-xl{font-size:40px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.brand-xl span,.brand span{color:var(--t200)}
+.tagline{color:var(--t100);max-width:620px;margin:6px 0 26px;font-size:16px}
+.login-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.login-grid .card{padding:22px}
+.login-grid h3{margin:0 0 6px;color:var(--t800)}
+.field{display:block;margin:10px 0}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.field textarea{min-height:84px;resize:vertical}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.quick button{padding:12px;border-radius:10px;border:1px solid var(--t200);background:var(--t50);color:var(--t800);font-weight:700;cursor:pointer;text-align:left}
+.quick button span{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ---------- shell ---------- */
+header{background:var(--t800);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:30}
+.brand{font-weight:700;font-size:20px}
+.who{flex:1;min-width:140px;font-size:12.5px;color:var(--t100)}
+.who b{display:block;color:#fff;font-size:14px}
+.hright{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:20px;padding:5px 10px;font-size:12px;white-space:nowrap}
+.chip.off{background:var(--badbg);color:var(--bad);border-color:var(--badbg)}
+.hbtn{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12.5px;white-space:nowrap}
+.hbtn .cnt{background:#fff;color:var(--t800);border-radius:10px;padding:0 6px;margin-left:4px;font-weight:700}
+nav{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:2px;padding:0 10px;overflow-x:auto;position:sticky;top:52px;z-index:20}
+nav button{background:none;border:none;border-bottom:3px solid transparent;padding:13px 12px;color:var(--muted);font-weight:700;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--t700);border-bottom-color:var(--t700)}
+main{max-width:1080px;margin:0 auto;padding:16px}
+.viewas{background:var(--t100);color:var(--t900);padding:9px 16px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.viewas button{background:var(--t700);color:#fff;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-weight:700}
+
+/* ---------- building blocks ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card-h{font-weight:700;font-size:15.5px;margin-bottom:10px;color:var(--t900);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.h2{font-size:21px;font-weight:700;color:var(--t900)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;border-top:3px solid var(--t500)}
+.kpi .n{font-size:24px;font-weight:700;color:var(--t800);line-height:1.1}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:3px}
+.kpi.ok{border-top-color:var(--ok)}.kpi.ok .n{color:var(--ok)}
+.kpi.bad{border-top-color:var(--bad)}.kpi.bad .n{color:var(--bad)}
+.btn{background:var(--t700);color:#fff;border:1px solid var(--t700);border-radius:9px;padding:9px 14px;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--t800)}
+.btn:disabled{background:#c9d6d4;border-color:#c9d6d4;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--t700)}
+.btn.ok{background:var(--ok);border-color:var(--ok)}
+.btn.bad-o{background:#fff;color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:12.5px}
+.btn.lg{padding:12px 18px;font-size:15px}
+.link{background:none;border:none;color:var(--t700);font-weight:700;cursor:pointer;padding:6px 0;font-size:13px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--t50);color:var(--t700);border:1px solid var(--t100);margin:0 4px 4px 0}
+.tag.strong{background:var(--t700);color:#fff;border-color:var(--t700)}
+.tag.ok{background:var(--okbg);color:var(--ok);border-color:var(--okbg)}
+.tag.bad{background:var(--badbg);color:var(--bad);border-color:var(--badbg)}
+.prio{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid var(--t300);color:var(--t800);background:var(--t50);white-space:nowrap}
+.prio.Critical{background:var(--badbg);color:var(--bad);border-color:#f5c2c2}
+.note{border-radius:9px;padding:9px 11px;font-size:13px;margin-top:8px;background:var(--t50);color:var(--t900);border:1px solid var(--t100)}
+.note.ok{background:var(--okbg);color:var(--ok);border-color:var(--okbg)}
+.note.bad{background:var(--badbg);color:var(--bad);border-color:var(--badbg)}
+.quote{font-size:13px;margin-top:6px;padding:8px 10px;border-left:3px solid var(--t500);background:var(--t50)}
+.regionbar{background:var(--t700);color:#fff;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13.5px}
+.regionbar b{color:#fff}
+.regionbar .muted{color:var(--t100)}
+.empty{padding:22px;text-align:center;color:var(--muted)}
+.sec-title{font-weight:700;color:var(--t900);margin:18px 0 8px;font-size:15px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.fchip{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;padding:6px 12px;cursor:pointer;font-size:12.5px;font-weight:700}
+.fchip.on{background:var(--t700);border-color:var(--t700);color:#fff}
+.fchip .c{opacity:.7;margin-left:4px}
+.search{padding:10px 12px;border:1px solid var(--line);border-radius:10px;min-width:240px;flex:1}
+select.sel{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink)}
+
+/* ---------- journey stepper ---------- */
+.stepper{display:flex;align-items:flex-start;margin:10px 0 6px;overflow-x:auto}
+.st{flex:1;min-width:74px;text-align:center;position:relative}
+.st:not(:last-child):after{content:'';position:absolute;top:12px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:var(--line)}
+.st.done:not(:last-child):after{background:var(--ok)}
+.st .dot{width:26px;height:26px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--line);background:#fff;color:var(--muted)}
+.st.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.st.current .dot{border-color:var(--t600);background:var(--t100);box-shadow:0 0 0 4px var(--t50)}
+.st.current .dot:after{content:'';width:10px;height:10px;border-radius:50%;background:var(--t700)}
+.st.na .dot{border-style:dashed;background:transparent}
+.st .sl{font-size:11.5px;margin-top:5px;font-weight:700;color:var(--ink)}
+.st.na .sl,.st.pending .sl{color:var(--muted);font-weight:400}
+.st.current .sl{color:var(--t700)}
+.st .sd{font-size:10.5px;color:var(--muted)}
+.stepper.sm .st{min-width:56px}.stepper.sm .dot{width:20px;height:20px;font-size:11px}
+.stepper.sm .st:not(:last-child):after{top:9px;left:calc(50% + 11px);right:calc(-50% + 11px)}
+.stepper.sm .st.current .dot:after{width:8px;height:8px}
+.stepper.sm .sl{font-size:10.5px}
+.stage{font-weight:700;color:var(--t700)}
+
+/* ---------- tasks ---------- */
+.task{background:#fff;border:1px solid var(--line);border-left:5px solid var(--t500);border-radius:12px;padding:13px 14px;margin-bottom:10px}
+.task.crit{border-left-color:var(--bad)}
+.task.closed{opacity:.62}
+.row-top{display:flex;justify-content:space-between;gap:10px}
+.pname{font-weight:700;font-size:15px}
+.right{text-align:right}
+.tags{margin-top:8px}
+.origin{font-size:12.5px;color:var(--t800);margin-top:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions .btn{flex:1;min-width:130px}
+.cap{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
+.cap div{height:100%;background:var(--t600)}
+.cap.over div{background:var(--bad)}
+
+/* ---------- lists & tables ---------- */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:700;font-size:12px;padding:8px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:var(--t50)}
+.lrow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.lrow:last-child{border-bottom:none}
+.bar{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+.bar .bl{width:180px;flex-shrink:0;color:var(--ink)}
+.bar .bt{flex:1;background:var(--t50);border-radius:6px;height:22px;overflow:hidden;border:1px solid var(--t100)}
+.bar .bf{height:100%;background:var(--t600);color:#fff;font-size:11.5px;font-weight:700;display:flex;align-items:center;padding-left:7px;white-space:nowrap}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.alert:last-child{border-bottom:none}
+.alert .ic{width:9px;height:9px;border-radius:50%;background:var(--t500);margin-top:6px;flex-shrink:0}
+.alert.bad .ic{background:var(--bad)}
+.feed{font-size:13px}
+.feed .lrow{padding:7px 0}
+
+/* ---------- patient ---------- */
+.hello{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--t700);border:none;color:#fff}
+.hello .h2{color:#fff}.hello .muted{color:var(--t100)}
+.sos{background:#fff;color:var(--bad);font-weight:700;border-radius:10px;padding:10px 14px;text-decoration:none;white-space:nowrap}
+.contact-h{display:flex;gap:12px;align-items:center}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--t100);color:var(--t800);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.cname{font-weight:700;font-size:16px}
+.phone{margin-top:10px;font-size:14px;color:var(--t900);letter-spacing:.5px}
+.stars button{background:none;border:none;font-size:26px;cursor:pointer;color:var(--line);padding:0 2px}
+.stars button.on{color:var(--t600)}
+
+/* ---------- picker / modal / toast ---------- */
+.modal{position:fixed;inset:0;background:rgba(10,40,38,.55);display:flex;align-items:flex-start;justify-content:center;z-index:60;padding:30px 12px;overflow-y:auto}
+.sheet{background:#fff;border-radius:16px;max-width:860px;width:100%;padding:20px;position:relative}
+.sheet .x{position:absolute;right:14px;top:10px;background:none;border:none;font-size:26px;cursor:pointer;color:var(--muted)}
+.sheet h2{margin:0 0 4px;color:var(--t900)}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.pick{border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff;text-align:left}
+.pick:hover{border-color:var(--t500);background:var(--t50)}
+.pick b{display:block;color:var(--t900)}
+.pick span{font-size:12px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--t900);color:#fff;padding:12px 18px;border-radius:24px;font-weight:700;font-size:14px;opacity:0;transition:opacity .25s;z-index:80;pointer-events:none;max-width:92vw;text-align:center}
+.toast.on{opacity:1}
+.foot{text-align:center;color:var(--muted);font-size:11.5px;padding:24px 12px}
+@media(max-width:760px){
+  .login-grid,.grid2,.grid3{grid-template-columns:1fr}
+  .bar .bl{width:120px}
+  nav{top:0;position:relative}
+  header{position:relative}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login" class="hidden">
+  <div class="login-wrap">
+    <div class="brand-xl">Sahaya<span>Link</span></div>
+    <p class="tagline">Connecting rural patients, ASHA workers, CHOs and doctors so that no patient is lost after a teleconsultation.</p>
+    <div class="login-grid">
+      <div class="card">
+        <h3>Sign in</h3>
+        <div class="muted small">Health workers use their username. Patients use their patient ID.</div>
+        <div class="field"><label>Username or patient ID</label><input id="uname" autocomplete="off"></div>
+        <div class="field"><label>PIN</label><input id="upin" type="password" autocomplete="off"></div>
+        <div class="err" id="lerr"></div>
+        <button class="btn lg" style="width:100%" onclick="doLogin()">Sign in</button>
+      </div>
+      <div class="card" id="demoCard">
+        <h3>Explore the demo</h3>
+        <div class="muted small">Open any person's dashboard to see how the whole flow connects. In a real rollout each person sees only their own screen.</div>
+        <div class="quick" id="quickPicks"></div>
+        <button class="btn ghost" style="width:100%;margin-top:10px" onclick="openPicker()">Choose any person</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+  <header>
+    <div class="brand">Sahaya<span>Link</span></div>
+    <div class="who"><b id="hName"></b><span id="hRole"></span></div>
+    <div class="hright">
+      <span class="chip" id="dayChip"></span>
+      <span class="chip" id="netChip">Online</span>
+      <button class="hbtn" onclick="go('updates')">Updates<span class="cnt hidden" id="unread"></span></button>
+      <button class="hbtn" id="switchBtn" onclick="openPicker()">Switch person</button>
+      <button class="hbtn" onclick="logout()">Log out</button>
+    </div>
+  </header>
+  <div id="viewAs" class="viewas hidden"></div>
+  <nav id="nav"></nav>
+  <main id="main"></main>
+  <div class="foot">SahayaLink prototype for INFINUM 2026 · synthetic data · not for clinical use</div>
+</div>
+
+<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================= core ================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k){try{return localStorage.getItem(k)}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){}},
+  del(k){try{localStorage.removeItem(k)}catch(e){}},
+  sget(k){try{return sessionStorage.getItem(k)}catch(e){return null}},
+  sset(k,v){try{sessionStorage.setItem(k,v)}catch(e){}},
+  sdel(k){try{sessionStorage.removeItem(k)}catch(e){}}
+};
+let TOKEN = store.get('sl_token');
+let ME = null, TAB = null, DEMO = true;
+const UI = {};   // per-view filter state
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtD(s){ if(!s) return ''; const d=String(s).slice(0,10).split('-'); return d.length<3?s:`${+d[2]} ${MONTHS[+d[1]-1]} ${d[0]}`; }
+function fmtSlot(s){ if(!s) return ''; const p=String(s).split(' '); return p.length>1?`${p[1]}, ${fmtD(p[0])}`:s; }
+function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2600); }
+function first(n){ return String(n||'').split(' ')[0]; }
+
+async function api(path, {method='GET', body, form, queue=false} = {}){
+  const headers = {};
+  if (TOKEN) headers.Authorization = 'Bearer ' + TOKEN;
+  let payload;
+  if (form) payload = form;
+  else if (body !== undefined){ headers['Content-Type'] = 'application/json'; payload = JSON.stringify(body); }
+  let r;
+  try { r = await fetch(path, {method, headers, body: payload}); }
+  catch(e){
+    if (method !== 'GET' && queue){ enqueue({path, method, body}); return {queued:true}; }
+    throw new Error('No connection right now. Please try again when you are online.');
+  }
+  if (r.status === 401 && path !== '/api/login'){ logout(true); throw new Error('Please sign in again'); }
+  const ct = r.headers.get('content-type') || '';
+  const data = ct.includes('json') ? await r.json() : await r.text();
+  if (!r.ok) throw new Error((data && data.detail) || 'Something went wrong');
+  return data;
+}
+async function download(path, fname){
+  try{
+    const r = await fetch(path, {headers:{Authorization:'Bearer '+TOKEN}});
+    if(!r.ok) throw new Error('Download failed');
+    const b = await r.blob(); const u = URL.createObjectURL(b);
+    const a = document.createElement('a'); a.href=u; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u), 1500); toast('Downloaded '+fname);
+  }catch(e){ toast(e.message); }
+}
+
+/* ---------- offline queue: actions taken without signal are saved and sent later ---------- */
+function getQueue(){ try{ return JSON.parse(store.get('sl_queue')||'[]'); }catch(e){ return []; } }
+function enqueue(item){ const q=getQueue(); q.push({...item, token:TOKEN}); store.set('sl_queue', JSON.stringify(q)); updateNet(); toast('No signal. Saved on this phone, will send automatically.'); }
+async function flushQueue(){
+  const q = getQueue(); if(!q.length || !navigator.onLine) return;
+  const left = [];
+  for (const it of q){
+    try{
+      const r = await fetch(it.path,{method:it.method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+it.token},body:JSON.stringify(it.body)});
+      if(!r.ok && r.status>=500) left.push(it);
+    }catch(e){ left.push(it); }
+  }
+  store.set('sl_queue', JSON.stringify(left));
+  if (q.length !== left.length){ toast(`Synced ${q.length-left.length} saved action(s)`); if(ME) render(); }
+  updateNet();
+}
+function updateNet(){
+  const c=$('#netChip'); if(!c) return; const n=getQueue().length;
+  if(navigator.onLine){ c.textContent = n ? `Online · syncing ${n}` : 'Online'; c.classList.remove('off'); }
+  else { c.textContent = n ? `Offline · ${n} saved` : 'Offline'; c.classList.add('off'); }
+}
+window.addEventListener('online', ()=>{ updateNet(); flushQueue(); });
+window.addEventListener('offline', updateNet);
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+async function clearApiCache(){ try{ if(window.caches) await caches.delete('sl-api'); }catch(e){} }
+
+/* ================================================= login & demo ================================================= */
+async function doLogin(){
+  $('#lerr').textContent='';
+  try{
+    const r = await api('/api/login',{method:'POST',body:{username:$('#uname').value,pin:$('#upin').value}});
+    store.sdel('sl_return'); await startSession(r.token);
+  }catch(e){ $('#lerr').textContent = e.message; }
+}
+$('#upin').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+async function demoAs(userId, returnable){
+  try{
+    if (returnable && ME) store.sset('sl_return', JSON.stringify({token:TOKEN, name:ME.name, tab:TAB}));
+    else if (!returnable) store.sdel('sl_return');
+    const r = await api('/api/demo/login',{method:'POST',body:{user_id:userId}});
+    closeModal(); await startSession(r.token);
+  }catch(e){ toast(e.message); }
+}
+async function backToReturn(){
+  const r = JSON.parse(store.sget('sl_return')||'null'); if(!r) return;
+  store.sdel('sl_return'); await startSession(r.token, r.tab);
+}
+async function startSession(token, tab){
+  TOKEN = token; store.set('sl_token', token); await clearApiCache();
+  ME = await api('/api/me'); DEMO = ME.demo;
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  $('#hName').textContent = ME.name;
+  const roleTxt = {PATIENT:'Patient', ASHA:'ASHA worker', CHO:'Community Health Officer', SUPERVISOR:'Programme supervisor'}[ME.role];
+  $('#hRole').textContent = roleTxt + (ME.block ? ' · ' + ME.block : '') + (ME.district ? ', ' + ME.district : '');
+  $('#switchBtn').classList.toggle('hidden', !DEMO);
+  setDay(); setUnread(ME.unread);
+  const ret = JSON.parse(store.sget('sl_return')||'null');
+  const va = $('#viewAs');
+  if (ret){ va.innerHTML = `Demo view: you are looking at <b>${esc(ME.name)}</b>'s own screen. <button onclick="backToReturn()">Back to ${esc(ret.name)}</button>`; va.classList.remove('hidden'); }
+  else va.classList.add('hidden');
+  buildNav(); go(tab || TABS[ME.role][0][0]); updateNet(); flushQueue();
+}
+function setDay(){ const start = new Date(ME.start_date), cur = new Date(ME.sim_date); const n = Math.round((cur-start)/864e5)+1; $('#dayChip').textContent = `${fmtD(ME.sim_date)} · Day ${n}`; }
+function setUnread(n){ const u=$('#unread'); u.textContent=n; u.classList.toggle('hidden', !n); }
+async function refreshMe(){ try{ ME = await api('/api/me'); setDay(); setUnread(ME.unread); }catch(e){} }
+function logout(silent){
+  TOKEN=null; ME=null; store.del('sl_token'); store.sdel('sl_return'); clearApiCache();
+  $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); loadQuick();
+  if(silent!==true) toast('Signed out');
+}
+
+let PEOPLE = null;
+async function loadQuick(){
+  try{
+    PEOPLE = await api('/api/demo/people');
+    const pick = (lbl, sub, id) => `<button onclick="demoAs(${id})">${lbl}<span>${esc(sub)}</span></button>`;
+    const pt = PEOPLE.patients[0], a = PEOPLE.ashas.find(x=>x.tasks>0)||PEOPLE.ashas[0], c = PEOPLE.chos[0], s = PEOPLE.supervisor[0];
+    $('#quickPicks').innerHTML = pick('Patient', pt.name+', '+pt.village, pt.id) + pick('ASHA worker', a.name+', '+a.block, a.id)
+      + pick('CHO', c.name+', '+c.block, c.id) + pick('Supervisor', 'District programme office', s.id);
+  }catch(e){ $('#demoCard').classList.add('hidden'); }
+}
+async function openPicker(q){
+  try{
+    const d = await api('/api/demo/people' + (q ? '?q='+encodeURIComponent(q) : ''));
+    const card = (b, s, id) => `<div class="pick" onclick="demoAs(${id}, false)"><b>${esc(b)}</b><span>${esc(s)}</span></div>`;
+    openModal(`<h2>Open anyone's dashboard</h2><div class="muted small">Demo only. Pick a person to see exactly what they see.</div>
+      <div class="sec-title">Supervisor</div><div class="pick-grid">${d.supervisor.map(x=>card(x.name,x.facility,x.id)).join('')}</div>
+      <div class="sec-title">CHOs (Community Health Officers)</div><div class="pick-grid">${d.chos.map(x=>card(x.name, `${x.block}, ${x.district} · ${x.waiting} consult request(s)`, x.id)).join('')}</div>
+      <div class="sec-title">ASHA workers</div><div class="pick-grid">${d.ashas.map(x=>card(x.name, `${x.block} · ${x.villages||''} · ${x.tasks} task(s) today`, x.id)).join('')}</div>
+      <div class="sec-title">Patients</div>
+      <input class="search" id="pq" placeholder="Search patient by name, ID or village" value="${esc(q||'')}" onkeydown="if(event.key==='Enter')openPicker(this.value)">
+      <div class="pick-grid" style="margin-top:8px">${d.patients.map(x=>card(x.name, `${x.label?x.label+' · ':''}${x.patient_ref} · ${x.village}`, x.id)).join('') || '<div class="muted">No patient found</div>'}</div>`);
+  }catch(e){ toast(e.message); }
+}
+function openModal(html){ $('#sheet').innerHTML = `<button class="x" onclick="closeModal()">&times;</button>` + html; $('#modal').classList.remove('hidden'); }
+function closeModal(){ $('#modal').classList.add('hidden'); }
+
+/* ================================================= navigation ================================================= */
+const TABS = {
+  PATIENT:[['p_home','Home'],['p_appts','My teleconsults'],['updates','Updates']],
+  ASHA:[['a_today','Today'],['a_patients','My patients'],['a_rewards','Rewards'],['updates','Updates']],
+  CHO:[['c_requests','Consult requests'],['c_handover','Tonight\'s handover'],['c_treated','My treated patients'],['c_esc','Escalations'],['c_doctors','Doctors'],['updates','Updates']],
+  SUPERVISOR:[['s_overview','Overview'],['s_people','People'],['s_ops','Daily operations'],['s_rewards','Rewards'],['s_regions','Regions'],['s_gov','Governance'],['updates','Updates']]
+};
+function buildNav(){ $('#nav').innerHTML = TABS[ME.role].map(t=>`<button data-t="${t[0]}" onclick="go('${t[0]}')">${t[1]}</button>`).join(''); }
+function go(t){ TAB=t; document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.t===t)); render(); window.scrollTo(0,0); }
+async function render(){
+  const m = $('#main'); m.innerHTML = '<div class="empty">Loading...</div>';
+  try{ await VIEWS[TAB](m); }catch(e){ m.innerHTML = `<div class="card empty">Could not load this page. ${esc(e.message)}</div>`; }
+}
+
+/* ================================================= shared widgets ================================================= */
+function stepper(j, compact){
+  if(!j) return '';
+  return `<div class="stepper ${compact?'sm':''}">${j.steps.map(s=>`<div class="st ${s.state}"><div class="dot">${s.state==='done'?'&#10003;':''}</div><div class="sl">${esc(s.label)}</div>${compact?'':`<div class="sd">${esc(s.detail||'')}</div>`}</div>`).join('')}</div>`;
+}
+const prio = p => `<span class="prio ${esc(p)}">${esc(p||'Normal')}</span>`;
+function statusTag(s){
+  const m = {done:['ok','Done'], unreachable:['bad','Not reachable'], needs_cho:['bad','Sent to CHO'], missed:['bad','Not acted on, moved on'], open:['','Open'], closed_by_other:['ok','Closed by colleague']}[s] || ['',s];
+  return `<span class="tag ${m[0]}">${m[1]}</span>`;
+}
+function bars(items, lab, val, opts={}){
+  const mx = Math.max(1, ...items.map(val));
+  return items.map(i=>`<div class="bar"><div class="bl">${esc(lab(i))}</div><div class="bt"><div class="bf" style="width:${Math.max(4, val(i)/mx*100)}%">${val(i)}</div></div></div>`).join('') || '<div class="muted">No data yet</div>';
+}
+function kpi(n, l, cls=''){ return `<div class="kpi ${cls}"><div class="n">${n ?? '-'}</div><div class="l">${l}</div></div>`; }
+function holderTxt(h){ if(!h) return ''; return `${h.role==='CHO'?'CHO':'ASHA'} ${h.name}${h.attempt_no>1?` (attempt ${h.attempt_no})`:''}`; }
+
+function taskCard(t, role){
+  const p = t.patient, e = t.episode, open = t.status === 'open';
+  const kb = {callback:'Call back requested', reconnect:'Missed teleconsult', escalation:'Escalated to you'}[t.kind];
+  return `<div class="task ${open?'':'closed'} ${p.priority==='Critical'?'crit':''}">
+    <div class="row-top">
+      <div><div class="pname">${esc(p.name)} <span class="muted small">${esc(p.patient_ref)}</span></div>
+        <div class="muted small">${esc(p.village)} · ${p.age??''}${p.gender?' '+esc(p.gender):''} · ${esc(p.diagnosis_group||'')} · ${esc(p.language||'')} · ${p.distance_km?p.distance_km+' km':''} ${p.connectivity?'· '+esc(p.connectivity)+' signal':''}</div></div>
+      <div class="right">${prio(p.priority)}<div class="muted small" style="margin-top:4px">${Math.round(p.risk_pct||0)}% risk</div></div>
+    </div>
+    <div class="tags">${kb?`<span class="tag strong">${kb}</span>`:''}<span class="tag">${esc(t.step_label)}</span>${t.attempt_no>1?`<span class="tag">Attempt ${t.attempt_no}</span>`:''}${t.overdue?'<span class="tag bad">Overdue</span>':''}${p.is_hard?'<span class="tag">Hard to reach</span>':''}</div>
+    <div class="origin">${esc(t.origin_label)}</div>
+    ${t.kind==='callback'?`<div class="quote">"${esc(t.request_reason)}"${t.request_note?' · '+esc(t.request_note):''}</div>`:''}
+    ${e && e.medicine_self_reported && t.step==='medicine' && open ? '<div class="note ok">The patient says the medicine was collected. Please confirm with them.</div>' : ''}
+    ${e ? `${stepper(e.journey, true)}${e.doctor_name?`<div class="muted small">Teleconsult: ${esc(e.doctor_name)} (${esc(e.specialty||'')}), ${esc(e.hospital_name||'')}${e.consult_date?' on '+fmtD(e.consult_date):''}${e.cho_notes?'. Note: '+esc(e.cho_notes):''}</div>`:''}` : ''}
+    ${t.history && t.history.length ? `<div class="muted small" style="margin-top:4px">Earlier: ${t.history.map(h=>`${esc(h.name)} ${h.status==='missed'?'did not act':h.status==='needs_cho'?'asked for CHO help':'could not reach'} (${fmtD(h.closed_date)})`).join('; ')}</div>` : ''}
+    ${open ? `<div class="actions">
+        <button class="btn ok" onclick="act(${t.id},'done')">&#10003; ${esc(t.done_label)}</button>
+        <button class="btn bad-o" onclick="act(${t.id},'unreachable')">Not reachable</button>
+        ${role==='ASHA'?`<button class="btn ghost" onclick="act(${t.id},'needs_cho')">Needs CHO help</button>`:''}
+      </div>` : `<div style="margin-top:10px">${statusTag(t.status)}</div>`}
+    <button class="link" onclick="patientModal(${p.id})">Full patient history</button>
+  </div>`;
+}
+async function act(id, outcome){
+  try{
+    const r = await api(`/api/task/${id}/outcome`, {method:'POST', body:{outcome}, queue:true});
+    if(r.queued) return;
+    toast(outcome==='done' ? `Done. +${r.points} points` : outcome==='unreachable' ? 'Saved. Another worker will try tomorrow.' : 'Sent to your CHO for tomorrow');
+    render(); refreshMe();
+  }catch(e){ toast(e.message); }
+}
+async function patientModal(pid){
+  try{
+    const d = await api('/api/patient-detail/'+pid); const p = d.patient;
+    openModal(`<h2>${esc(p.name)}</h2>
+      <div class="muted">${esc(p.patient_ref)} · ${p.age??''} ${esc(p.gender||'')} · ${esc(p.village)}, ${esc(p.block)}, ${esc(p.district)} · ${esc(p.language||'')}</div>
+      <div class="tags" style="margin-top:8px">${prio(p.priority)} <span class="tag">${Math.round(p.risk_pct||0)}% dropout risk</span> <span class="tag">${esc(p.diagnosis_group||'')}</span>${p.vulnerability&&p.vulnerability!=='General'?`<span class="tag">${esc(p.vulnerability)}</span>`:''}</div>
+      ${p.risk_reason?`<div class="note">Why flagged: ${esc(p.risk_reason)}</div>`:''}
+      <div class="grid2" style="margin-top:12px"><div class="card" style="margin:0"><div class="muted small">ASHA worker</div><b>${esc(p.asha_name)}</b><div class="muted small">Back-up: ${esc(p.alt_asha_name||'-')}</div></div>
+      <div class="card" style="margin:0"><div class="muted small">CHO</div><b>${esc(p.cho_name)}</b><div class="muted small">${esc(p.cho_facility||'')}</div></div></div>
+      <div class="sec-title">Care journeys</div>
+      ${d.episodes.map(e=>`<div class="card"><div class="card-h"><span>${esc(e.category||'Care journey')}</span><span class="stage">${esc(e.journey.stage)}</span></div>
+        ${e.complaint?`<div class="small">${esc(e.complaint)}</div>`:''}${stepper(e.journey)}
+        <div class="muted small">${e.doctor_name?`Doctor: ${esc(e.doctor_name)}, ${esc(e.hospital_name||'')}. `:''}${e.consult_date?`Consulted ${fmtD(e.consult_date)}. `:''}${e.cho_notes?`CHO note: ${esc(e.cho_notes)}. `:''}${e.rating?`Patient rating: ${e.rating}/5.`:''}</div></div>`).join('') || '<div class="muted">No care journeys yet</div>'}
+      <div class="sec-title">Contact history</div>
+      <div class="tbl-wrap"><table><tr><th>Due</th><th>Task</th><th>Worker</th><th>Attempt</th><th>Result</th></tr>
+      ${d.tasks.map(t=>`<tr><td>${fmtD(t.due_date)}</td><td>${esc({callback:'Call back',reconnect:'Reconnect',escalation:'Escalation',followup:'Follow-up'}[t.kind]||t.kind)}: ${esc(t.step)}</td><td>${esc(t.worker)} (${esc(t.worker_role)})</td><td>${t.attempt_no}</td><td>${statusTag(t.status)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">No contacts yet</td></tr>'}</table></div>`);
+  }catch(e){ toast(e.message); }
+}
+
+/* ================================================= shared: updates ================================================= */
+async function vUpdates(m){
+  const d = await api('/api/notifications'); setUnread(0);
+  m.innerHTML = `<div class="card"><div class="card-h">Updates</div>${d.items.map(n=>`<div class="lrow"><div>${esc(n.text)}</div><div class="muted small" style="white-space:nowrap">${fmtD(n.sim_date)}</div></div>`).join('') || '<div class="empty">No updates yet</div>'}</div>`;
+}
+
+/* ================================================= PATIENT ================================================= */
+let PH = null;
+function nextText(e, p){
+  const j = e.journey, k = j.stage_key;
+  if(k==='requested') return `Your request is with CHO ${esc(e.cho_name||p.cho_name)}. You will get a doctor and a time slot soon.`;
+  if(k==='scheduled') return `Teleconsult with <b>${esc(e.doctor_name)}</b> (${esc(e.specialty)}, ${esc(e.hospital_name)}) at <b>${esc(fmtSlot(e.slot))}</b>. It is a ${esc((e.doctor_mode||e.mode||'video').toLowerCase())} call, so keep your phone charged and nearby.`;
+  if(k==='handover') return `Your teleconsult is done. ASHA ${esc(p.asha_name)} will contact you tomorrow to help with the next step.`;
+  if(k==='medicine') return `Please collect your medicines at <b>${esc(p.cho_facility)}</b>.`;
+  if(k==='review') return `Please visit <b>${esc(p.cho_facility)}</b> for your review. Your ASHA will remind you.`;
+  if(k==='test') return `Please get your lab test done at <b>${esc(p.cho_facility)}</b>. Your ASHA will help you.`;
+  return 'Your care journey is complete. Request a teleconsult any time you need a doctor.';
+}
+function rateBox(e){
+  if(e.consult_status!=='completed') return '';
+  if(e.rating) return `<div class="muted small">You rated this teleconsult ${e.rating} out of 5. Thank you.</div>`;
+  return `<div class="note">How was your teleconsult with ${esc(e.doctor_name||'the doctor')}?
+    <div class="stars" id="stars${e.id}">${[1,2,3,4,5].map(n=>`<button onclick="rate(${e.id},${n})" title="${n}">&#9733;</button>`).join('')}</div></div>`;
+}
+async function rate(eid, n){ try{ await api('/api/patient/rate',{method:'POST',body:{episode_id:eid,rating:n}}); toast('Thank you for your feedback'); render(); }catch(e){ toast(e.message); } }
+async function vPHome(m){
+  const d = await api('/api/patient/home'); PH = d; const p = d.patient;
+  const act = d.episodes.find(e=>e.status==='open') || d.episodes[0];
+  const consultOpen = d.episodes.find(e=>['requested','scheduled'].includes(e.consult_status));
+  const cb = d.open_callback;
+  m.innerHTML = `
+  <div class="card hello"><div><div class="h2">Namaste, ${esc(first(p.name))}</div>
+    <div class="muted">${esc(p.village)}, ${esc(p.block)} block, ${esc(p.district)} · Patient ID ${esc(p.patient_ref)}</div></div>
+    <a class="sos" href="tel:108">Emergency? Call 108</a></div>
+  <div class="card"><div class="card-h"><span>My care journey</span>${act?`<span class="stage">${esc(act.journey.stage)}</span>`:''}</div>
+    ${act ? `${stepper(act.journey)}<div class="note">${nextText(act,p)}</div>
+      ${act.holder?`<div class="muted small" style="margin-top:6px">Helping you right now: ${esc(holderTxt(act.holder))}</div>`:''}
+      ${act.journey.stage_key==='medicine' ? (act.medicine_self_reported ? '<div class="note ok">You told us you collected your medicine. Your ASHA will confirm.</div>'
+        : `<div class="btnrow"><button class="btn ok" onclick="selfReport(${act.id})">&#10003; I have collected my medicine</button></div>`) : ''}
+      ${rateBox(act)}` : '<div class="muted">No care journey yet. Request a teleconsult whenever you need a doctor.</div>'}
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="contact-h"><div class="avatar">${esc(p.asha_name[0])}</div><div><div class="cname">${esc(p.asha_name)}</div><div class="muted small">Your ASHA worker for ${esc(p.village)}</div></div></div>
+      <div class="phone">+91 XXXXXX${esc(p.asha_phone)}</div>
+      <div class="muted small">Ask about medicine pickup, your tablets, side effects or tests.</div>
+      <div class="btnrow"><button class="btn ghost" onclick="pCall('asha')">Call</button><button class="btn" ${cb?'disabled':''} onclick="callbackForm()">Request a call back</button></div>
+      ${cb?`<div class="note ok">Call back requested: ${esc(cb.request_reason)}. ${esc(cb.holder)} will call you.</div>`:''}
+    </div>
+    <div class="card"><div class="contact-h"><div class="avatar">${esc(p.cho_name[0])}</div><div><div class="cname">${esc(p.cho_name)}</div><div class="muted small">Community Health Officer, ${esc(p.cho_facility||'')}</div></div></div>
+      <div class="phone">+91 XXXXXX${esc(p.cho_phone)}</div>
+      <div class="muted small">Your CHO connects you to a doctor by video or audio call.</div>
+      <div class="btnrow"><button class="btn ghost" onclick="pCall('cho')">Call</button><button class="btn" ${consultOpen?'disabled':''} onclick="consultForm()">Request a teleconsult</button></div>
+      ${consultOpen?`<div class="note">${consultOpen.consult_status==='scheduled'?'Your teleconsult is booked. See details above.':'Your teleconsult request is with the CHO.'}</div>`:''}
+    </div>
+  </div>`;
+}
+async function pCall(to){ try{ const r = await api('/api/patient/call',{method:'POST',body:{to}}); toast(r.message); }catch(e){ toast(e.message); } }
+async function selfReport(eid){ try{ await api('/api/patient/medicine-collected',{method:'POST',body:{episode_id:eid},queue:true}); toast('Thank you. Your ASHA will confirm.'); render(); }catch(e){ toast(e.message); } }
+function consultForm(){
+  openModal(`<h2>Request a teleconsult</h2><div class="muted small">Your request goes to CHO ${esc(PH.patient.cho_name)}, who will book a doctor and send you a time.</div>
+    <div class="field"><label>What is the problem about?</label><select id="cCat">${PH.categories.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+    <div class="field"><label>Tell us in a few words</label><textarea id="cTxt" placeholder="For example: fever for 3 days, BP tablets finished"></textarea></div>
+    <div class="grid2"><div class="field"><label>Best time for you</label><select id="cSlot"><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div>
+    <div class="field"><label>Call type</label><select id="cMode"><option>Video</option><option>Audio</option></select></div></div>
+    <div class="err" id="cErr"></div><button class="btn lg" onclick="sendConsult()">Send request</button>`);
+}
+async function sendConsult(){
+  try{ const r = await api('/api/patient/consult-request',{method:'POST',queue:true,body:{category:$('#cCat').value,complaint:$('#cTxt').value,preferred_slot:$('#cSlot').value,mode:$('#cMode').value}});
+    closeModal(); if(!r.queued) toast('Request sent to your CHO'); render(); }catch(e){ $('#cErr').textContent = e.message; }
+}
+function callbackForm(){
+  openModal(`<h2>Request a call back</h2><div class="muted small">ASHA ${esc(PH.patient.asha_name)} will see this at the top of her list today.</div>
+    <div class="field"><label>What do you need help with?</label><select id="kReason">${PH.callback_reasons.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+    <div class="field"><label>Anything else? (optional)</label><textarea id="kNote" placeholder="For example: please call after 5 pm"></textarea></div>
+    <div class="err" id="kErr"></div><button class="btn lg" onclick="sendCallback()">Request call back</button>`);
+}
+async function sendCallback(){
+  try{ const r = await api('/api/patient/callback',{method:'POST',queue:true,body:{reason:$('#kReason').value,note:$('#kNote').value}});
+    closeModal(); if(!r.queued) toast('Your ASHA will call you'); render(); }catch(e){ $('#kErr').textContent = e.message; }
+}
+async function vPAppts(m){
+  const d = await api('/api/patient/home'); PH = d;
+  m.innerHTML = `<div class="card-h" style="margin:4px 0 12px"><span>My teleconsults</span><button class="btn sm" onclick="consultForm()" ${d.episodes.find(e=>['requested','scheduled'].includes(e.consult_status))?'disabled':''}>Request a teleconsult</button></div>
+  ${d.episodes.map(e=>`<div class="card"><div class="card-h"><span>${esc(e.category||'Teleconsult')}</span><span class="stage">${esc(e.journey.stage)}</span></div>
+    ${e.complaint?`<div class="small">${esc(e.complaint)}</div>`:''}
+    ${stepper(e.journey)}
+    <div class="small">${e.doctor_name?`<b>${esc(e.doctor_name)}</b>, ${esc(e.specialty)}, ${esc(e.hospital_name)}`:'Doctor not assigned yet'}${e.slot?` · ${esc(fmtSlot(e.slot))}`:''}</div>
+    ${e.cho_notes?`<div class="muted small">Note from CHO: ${esc(e.cho_notes)}</div>`:''}
+    ${rateBox(e)}</div>`).join('') || '<div class="card empty">You have not had a teleconsult yet.</div>'}`;
+}
+
+/* ================================================= ASHA ================================================= */
+async function vAToday(m){
+  const d = await api('/api/asha/today'); const f = UI.af || 'all';
+  const load = d.counts.open, cap = d.cap;
+  let list = d.tasks;
+  if(f==='callback') list = list.filter(t=>t.kind==='callback'&&t.status==='open');
+  if(f==='critical') list = list.filter(t=>t.patient.priority==='Critical'&&t.status==='open');
+  if(f==='overdue') list = list.filter(t=>t.overdue);
+  if(f==='done') list = list.filter(t=>t.status!=='open');
+  const chip = (k,l,n) => `<button class="fchip ${f===k?'on':''}" onclick="UI.af='${k}';render()">${l}${n!=null?`<span class="c">${n}</span>`:''}</button>`;
+  m.innerHTML = `
+  <div class="regionbar">Your area: <b>${esc(ME.block)} block, ${esc(ME.district)}</b> · Main worker for <b>${esc((ME.villages||[]).join(', ')||'-')}</b>
+    <span class="muted"> · Back-up for ${esc((ME.cover_villages||[]).join(', ')||'-')}</span></div>
+  <div class="kpis">${kpi(d.counts.open,'To do today')}${kpi(d.counts.callbacks,'Patient call backs')}${kpi(d.counts.done,'Done today','ok')}${kpi(d.counts.unreachable,'Not reached today','bad')}${kpi(d.points.today,'Points today')}${kpi(d.points.week,'Points this week · '+d.points.tier)}</div>
+  <div class="card"><div class="card-h"><span>Today's load</span><span class="muted small">${load} of ${cap} daily slots</span></div>
+    <div class="cap ${load>cap?'over':''}"><div style="width:${Math.min(100,load/cap*100)}%"></div></div>
+    ${load>cap?'<div class="note bad">You have more tasks than the daily cap. Your supervisor can see this and move a village to balance the load.</div>':'<div class="muted small" style="margin-top:6px">Call backs from patients come first and earn the most points.</div>'}</div>
+  <div class="filters">${chip('all','All',d.tasks.length)}${chip('callback','Call backs',d.counts.callbacks)}${chip('critical','Critical',null)}${chip('overdue','Overdue',d.counts.overdue)}${chip('done','Done today',d.counts.done+d.counts.unreachable)}</div>
+  ${list.map(t=>taskCard(t,'ASHA')).join('') || '<div class="card empty">Nothing here. Well done.</div>'}`;
+}
+const STAGES = [['all','All'],['requested','Consult requested'],['scheduled','Consult scheduled'],['handover','Handover tonight'],['medicine','Medicine pickup'],['review','Review visit'],['test','Lab test'],['closed','Care complete']];
+function stageChips(list, key, getKey){
+  const f = UI[key] || 'all'; const cnt = {}; list.forEach(x=>{ const k=getKey(x); cnt[k]=(cnt[k]||0)+1; });
+  return `<div class="filters">${STAGES.filter(([k])=>k==='all'||cnt[k]).map(([k,l])=>`<button class="fchip ${f===k?'on':''}" onclick="UI['${key}']='${k}';render()">${l}<span class="c">${k==='all'?list.length:cnt[k]}</span></button>`).join('')}</div>`;
+}
+async function vAPatients(m){
+  const d = await api('/api/asha/patients');
+  const gk = p => p.episode ? p.episode.journey.stage_key : 'none'; const f = UI.ap || 'all';
+  const list = d.patients.filter(p=>f==='all'||gk(p)===f);
+  m.innerHTML = `<div class="regionbar">You look after <b>${d.patients.length} patients</b>. Each card shows where the patient is in their care journey and who is helping them now.</div>
+  ${stageChips(d.patients,'ap',gk)}
+  ${list.map(p=>`<div class="card"><div class="row-top"><div><div class="pname">${esc(p.name)} <span class="muted small">${esc(p.patient_ref)}</span></div>
+      <div class="muted small">${esc(p.village)} · ${p.age??''} ${esc(p.gender||'')} · ${esc(p.diagnosis_group||'')}</div></div>
+      <div class="right">${prio(p.priority)}<div class="stage small" style="margin-top:4px">${esc(p.episode?p.episode.journey.stage:'')}</div></div></div>
+    ${p.episode?stepper(p.episode.journey,true):''}
+    <div class="muted small">${p.holder?'With: '+esc(holderTxt(p.holder)):''}${p.episode&&p.episode.doctor_name?` · Doctor: ${esc(p.episode.doctor_name)}`:''}</div>
+    <button class="link" onclick="patientModal(${p.id})">Full history</button></div>`).join('') || '<div class="card empty">No patients in this stage</div>'}`;
+}
+async function vARewards(m){
+  const [d, b] = await Promise.all([api('/api/asha/today'), api('/api/sup/rewards')]); const pt = d.points;
+  m.innerHTML = `<div class="grid2">
+    <div class="card" style="text-align:center"><div class="muted small">Total points</div><div style="font-size:46px;font-weight:700;color:var(--t700)">${pt.total}</div>
+      <span class="tag strong">${pt.tier} tier</span><div class="muted small" style="margin-top:8px">${pt.week} points this week · rank ${pt.rank} of ${pt.of}</div>
+      <div class="muted small">Bronze 0 to 49 · Silver 50 to 119 · Gold 120 and above</div></div>
+    <div class="card"><div class="card-h">My awards</div>${pt.awards.map(a=>`<div class="lrow"><div><b>${esc(a.title)}</b><div class="muted small">${esc(a.week_label)} · ${esc(a.reward)}</div></div><span class="tag ok">+${a.points}</span></div>`).join('') || '<div class="muted">No awards yet. Weekly winners are announced by your supervisor.</div>'}</div></div>
+  <div class="grid2"><div class="card"><div class="card-h">How to earn points</div>${d.rules.map(r=>`<div class="lrow"><div>${esc(r.label)}</div><b style="color:var(--t700)">+${r.points}</b></div>`).join('')}</div>
+    <div class="card"><div class="card-h">This week's leaderboard</div>${bars(b.asha.slice(0,10), x=>x.name+(x.id===ME.id?' (you)':'')+' · '+x.block, x=>x.pts)}</div></div>`;
+}
+
+/* ================================================= CHO ================================================= */
+let NET = null;
+async function net(){ if(!NET) NET = await api('/api/network'); return NET; }
+function docOptions(n, district){
+  const hs = [...n.hospitals].sort((a,b)=>(b.district===district)-(a.district===district));
+  return hs.map(h=>`<optgroup label="${esc(h.name)}">${n.doctors.filter(d=>d.hospital_id===h.id).map(d=>`<option value="${d.id}">${esc(d.name)} · ${esc(d.specialty)} · ${esc(d.mode)}</option>`).join('')}</optgroup>`).join('');
+}
+const SLOTS = ['09:30','10:00','10:30','11:00','11:30','12:00','14:30','15:00','15:30','16:00','16:30'];
+async function vCRequests(m){
+  const [d, s, n] = await Promise.all([api('/api/cho/requests'), api('/api/cho/summary'), net()]);
+  const srcTag = e => ({patient_request:'<span class="tag strong">Patient request</span>', model_flag:'<span class="tag">Flagged by risk model</span>', upload:'<span class="tag">Added by supervisor</span>'}[e.source]||'');
+  m.innerHTML = `
+  <div class="regionbar">Your role: <b>connect each patient to the right doctor</b> and complete the teleconsult. After the consult, the follow-up steps go to the ASHA through tonight's handover.</div>
+  <div class="kpis">${kpi(s.requested,'Waiting for a doctor')}${kpi(s.scheduled,'Booked for today')}${kpi(s.done_today,'Consults done today','ok')}${kpi(s.handover,'Handover tonight')}${kpi(s.escalations,'Escalations','bad')}${kpi(s.rating?s.rating+' / 5':'-','Patient rating')}</div>
+  <div class="sec-title">Booked for today (${d.scheduled.length})</div>
+  ${d.scheduled.map(e=>`<div class="task ${e.patient.priority==='Critical'?'crit':''}"><div class="row-top"><div><div class="pname">${esc(e.patient.name)} <span class="muted small">${esc(e.patient.patient_ref)}</span></div>
+      <div class="muted small">${esc(e.patient.village)} · ${e.patient.age??''} ${esc(e.patient.gender||'')} · ${esc(e.patient.language||'')}</div></div><div class="right">${prio(e.patient.priority)}</div></div>
+    <div class="tags">${srcTag(e)}<span class="tag">${esc(e.category||'')}</span></div>
+    <div class="quote">${esc(e.complaint||'')}</div>
+    <div class="note"><b>${esc(e.doctor_name)}</b> (${esc(e.specialty)}, ${esc(e.hospital_name)}) at <b>${esc(fmtSlot(e.slot))}</b>, ${esc(e.doctor_mode)} call</div>
+    <div class="card" style="margin:10px 0 0;background:var(--t50)"><div class="b small">After the consult, what does the patient need?</div>
+      <label class="small"><input type="checkbox" id="nm${e.id}" checked> Medicine pickup</label> &nbsp;
+      <label class="small"><input type="checkbox" id="nr${e.id}"> Review visit</label> &nbsp;
+      <label class="small"><input type="checkbox" id="nt${e.id}"> Lab test</label>
+      <div class="field"><input id="nn${e.id}" placeholder="Doctor's advice in one line (shared with ASHA and patient)"></div>
+      <div class="btnrow"><button class="btn ok" onclick="completeConsult(${e.id})">&#10003; Consult done, hand over to ASHA ${esc(e.patient.asha_name)}</button><button class="btn bad-o" onclick="noShow(${e.id})">Patient did not join</button></div></div>
+  </div>`).join('') || '<div class="card empty">No consults booked right now</div>'}
+  <div class="sec-title">Waiting for a doctor (${d.requested.length})</div>
+  ${d.requested.map(e=>`<div class="task ${e.patient.priority==='Critical'?'crit':''}"><div class="row-top"><div><div class="pname">${esc(e.patient.name)} <span class="muted small">${esc(e.patient.patient_ref)}</span></div>
+      <div class="muted small">${esc(e.patient.village)} · ${e.patient.age??''} ${esc(e.patient.gender||'')} · ${esc(e.patient.language||'')} · asked ${fmtD(e.created_date)}</div></div>
+      <div class="right">${prio(e.patient.priority)}<div class="muted small" style="margin-top:4px">${Math.round(e.patient.risk_pct||0)}% risk</div></div></div>
+    <div class="tags">${srcTag(e)}<span class="tag">${esc(e.category||'')}</span>${e.preferred_slot?`<span class="tag">Prefers ${esc(e.preferred_slot)}</span>`:''}${e.mode?`<span class="tag">${esc(e.mode)}</span>`:''}</div>
+    <div class="quote">${esc(e.complaint||'')}</div>
+    <div class="btnrow"><select class="sel" id="doc${e.id}" style="flex:1;min-width:240px">${docOptions(n, e.patient.district)}</select>
+      <select class="sel" id="slot${e.id}">${SLOTS.map(x=>`<option>${x}</option>`).join('')}</select>
+      <button class="btn" onclick="schedule(${e.id})">Book teleconsult</button></div>
+    <button class="link" onclick="patientModal(${e.patient.id})">Patient history</button>
+  </div>`).join('') || '<div class="card empty">No one is waiting. Well done.</div>'}`;
+}
+async function schedule(id){ try{ await api('/api/cho/schedule',{method:'POST',body:{episode_id:id,doctor_id:+$('#doc'+id).value,slot:$('#slot'+id).value}}); toast('Booked. The patient has been told the doctor and time.'); render(); }catch(e){ toast(e.message); } }
+async function completeConsult(id){
+  try{ const r = await api('/api/cho/complete',{method:'POST',body:{episode_id:id,needs_medicine:$('#nm'+id).checked,needs_review:$('#nr'+id).checked,needs_test:$('#nt'+id).checked,notes:$('#nn'+id).value}});
+    toast(r.handover_to?`Consult done. Handover to ${r.handover_to} tonight. +${r.points} points`:`Consult done, no follow-up needed. +${r.points} points`); render(); refreshMe(); }catch(e){ toast(e.message); }
+}
+async function noShow(id){ try{ await api('/api/cho/no-show',{method:'POST',body:{episode_id:id}}); toast('Moved back to waiting. The ASHA will help the patient rebook.'); render(); }catch(e){ toast(e.message); } }
+async function vCHandover(m){
+  const d = await api('/api/cho/handover');
+  const need = e => ['medicine','review','test'].filter(k=>e['needs_'+k]).map(k=>({medicine:'Medicine pickup',review:'Review visit',test:'Lab test'}[k])).join(', ');
+  m.innerHTML = `<div class="regionbar">Patients you consulted today. Tonight they are handed to their ASHA worker, who will contact them tomorrow. Anything you do not send is sent automatically at night.</div>
+  <div class="card"><div class="card-h"><span>Tonight's handover (${d.pending.length})</span><button class="btn" ${d.pending.length?'':'disabled'} onclick="sendHandover()">Send handover to ASHAs now</button></div>
+  ${d.pending.length ? `<div class="tbl-wrap"><table><tr><th>Patient</th><th>Village</th><th>Doctor</th><th>Next steps</th><th>Goes to</th></tr>
+    ${d.pending.map(e=>`<tr><td><b>${esc(e.patient.name)}</b><div class="muted small">${esc(e.patient.patient_ref)}</div></td><td>${esc(e.patient.village)}</td><td>${esc(e.doctor_name||'')}</td><td>${esc(need(e))}${e.cho_notes?`<div class="muted small">${esc(e.cho_notes)}</div>`:''}</td><td><b>ASHA ${esc(e.patient.asha_name)}</b></td></tr>`).join('')}</table></div>`
+    : `<div class="empty">Nothing waiting. ${d.sent_today?d.sent_today+' patient(s) already handed over today.':''}</div>`}</div>`;
+}
+async function sendHandover(){ try{ const r = await api('/api/cho/send-handover',{method:'POST'}); toast(`Handed over ${r.sent} patient(s) to ${r.ashas} ASHA worker(s)`); render(); }catch(e){ toast(e.message); } }
+async function vCTreated(m){
+  const d = await api('/api/cho/treated'); const gk = e => e.journey.stage_key; const f = UI.ct || 'all';
+  const list = d.episodes.filter(e=>f==='all'||gk(e)===f);
+  m.innerHTML = `<div class="regionbar">Patients you consulted, and where each one is now. You only see your own patients; the follow-up itself is run by the ASHA workers.</div>
+  ${stageChips(d.episodes,'ct',gk)}
+  ${list.map(e=>`<div class="card"><div class="row-top"><div><div class="pname">${esc(e.patient.name)} <span class="muted small">${esc(e.patient.patient_ref)}</span></div>
+      <div class="muted small">${esc(e.patient.village)} · consulted ${fmtD(e.consult_date)} with ${esc(e.doctor_name||'')}</div></div>
+      <div class="right">${prio(e.patient.priority)}<div class="stage small" style="margin-top:4px">${esc(e.journey.stage)}</div></div></div>
+    ${stepper(e.journey,true)}
+    <div class="muted small">${e.holder?'Being followed up by '+esc(holderTxt(e.holder)):e.status==='closed'?'Journey complete'+(e.rating?' · rated '+e.rating+'/5':''):'Waiting for tonight\'s handover'}</div>
+    <button class="link" onclick="patientModal(${e.patient.id})">Full history</button></div>`).join('') || '<div class="card empty">No patients in this stage</div>'}`;
+}
+async function vCEsc(m){
+  const d = await api('/api/cho/escalations');
+  m.innerHTML = `<div class="regionbar">Patients the ASHA workers could not reach twice, or who need your help. Resolve them or mark not reachable; you keep them until resolved.</div>
+  ${d.tasks.map(t=>taskCard(t,'CHO')).join('') || '<div class="card empty">No escalations today</div>'}`;
+}
+async function vCDoctors(m){
+  const n = await net();
+  m.innerHTML = `<div class="regionbar">The teleconsultation network you connect patients into.</div><div class="grid2">${n.hospitals.map(h=>`<div class="card"><div class="card-h"><span>${esc(h.name)}</span><span class="tag">${esc(h.hosp_type)}</span></div>
+    <div class="muted small">${esc(h.district)} district</div>
+    ${n.doctors.filter(d=>d.hospital_id===h.id).map(d=>`<div class="lrow"><div><b>${esc(d.name)}</b><div class="muted small">${esc(d.specialty)} · ${esc(d.mode)}</div></div><div class="right small">${d.consults} consults<div class="muted">${d.rating?d.rating+' / 5':''}</div></div></div>`).join('')}</div>`).join('')}</div>`;
+}
+
+/* ================================================= SUPERVISOR ================================================= */
+function nightCard(){
+  return `<div class="card" style="border-color:var(--t300)"><div class="card-h"><span>Night handover</span><button class="btn" onclick="runNight()">Run night handover and start next day</button></div>
+    <div class="small">Every night the system: 1) sends any CHO handovers not yet sent, 2) moves patients who could not be reached (or whose task was untouched for two days) to the other ASHA, and to the CHO after two failed attempts, 3) makes sure every open care journey has someone assigned to its next step, 4) starts the next day and tells each worker their list.</div></div>`;
+}
+async function runNight(){
+  if(!confirm('Run the night handover and move the demo to the next day?')) return;
+  try{ const s = await api('/api/sup/night',{method:'POST'}); await refreshMe();
+    openModal(`<h2>New day: ${fmtD(s.to_date)}</h2><div class="muted">Night handover for ${fmtD(s.from_date)} is complete.</div>
+      <div class="kpis" style="margin-top:12px">${kpi(s.handovers_sent,'CHO handovers sent')}${kpi(s.new_followups,'New ASHA follow-ups')}${kpi(s.reassigned_to_other_asha,'Moved to the other ASHA')}${kpi(s.escalated_to_cho,'Escalated to CHO','bad')}${kpi(s.auto_moved_untouched,'Untouched 2 days, moved on','bad')}${kpi(s.carried_over,'Still open, carried over')}</div>
+      <button class="btn" onclick="closeModal();render()">See the new day</button>`);
+  }catch(e){ toast(e.message); }
+}
+async function vSOverview(m){
+  const d = await api('/api/sup/overview'); const k = d.kpi;
+  const feedTxt = a => ({consult_requested:'requested a teleconsult', callback_requested:'asked for a call back', consult_scheduled:'booked a teleconsult for', consult_completed:'completed a teleconsult for', handover_sent:'handed over', task_done:'completed a follow-up for', task_unreachable:'could not reach', task_needs_cho:'escalated', medicine_self_reported:'reported medicine collected', consult_rated:'rated the teleconsult', consult_no_show:'marked a missed consult for', winners_announced:'announced weekly winners', upload:'uploaded patients', village_reassigned:'reassigned a village', call_asha:'called their ASHA', call_cho:'called their CHO'}[a.action] || a.action.replace(/_/g,' '));
+  m.innerHTML = `${nightCard()}
+  <div class="kpis">${kpi(k.patients,'Patients')}${kpi(k.active,'Active care journeys')}${kpi(k.requested,'Waiting for a doctor')}${kpi(k.scheduled,'Teleconsults booked')}${kpi(k.consults_today,'Consults done today','ok')}${kpi(k.tasks_open,'ASHA/CHO tasks open')}${kpi(k.tasks_done,'Tasks done today','ok')}${kpi(k.unreachable,'Not reached today','bad')}${kpi(k.callbacks,'Patient call backs open')}${kpi(k.escalations,'Escalations open','bad')}${kpi(k.closed,'Journeys complete','ok')}${kpi(k.rating?k.rating+' / 5':'-','Avg consult rating')}</div>
+  <div class="grid2">
+    <div class="card"><div class="card-h">Needs your attention</div>${d.alerts.map(a=>`<div class="alert ${a.level}"><div class="ic"></div><div>${esc(a.text)}${a.user_id&&DEMO?` <button class="link" onclick="demoAs(${a.user_id},true)">Open her dashboard</button>`:''}</div></div>`).join('') || '<div class="muted">All clear</div>'}</div>
+    <div class="card"><div class="card-h">Where every patient is in the journey</div>${bars(d.funnel, x=>x.label, x=>x.n)}</div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-h">By district</div><div class="tbl-wrap"><table><tr><th>District</th><th>Journeys</th><th>Active</th><th>Waiting for doctor</th><th>Complete</th></tr>
+      ${d.districts.map(r=>`<tr><td><b>${esc(r.district)}</b></td><td>${r.patients}</td><td>${r.active}</td><td>${r.waiting}</td><td>${r.closed}</td></tr>`).join('')}</table></div>
+      ${d.nights.length?`<div class="sec-title">Recent nights</div>${d.nights.map(n=>`<div class="lrow small"><span>${fmtD(n.date)}</span><span>${n.new_followups} new · ${n.reassigned_to_other_asha} moved · ${n.escalated_to_cho} to CHO</span></div>`).join('')}`:''}</div>
+    <div class="card"><div class="card-h">Live activity</div><div class="feed">${d.feed.map(a=>`<div class="lrow"><div><b>${esc(a.name||'System')}</b> <span class="muted">(${esc(a.role||'')})</span> ${esc(feedTxt(a))} ${a.patient?'<b>'+esc(a.patient)+'</b>':''}</div><div class="muted small" style="white-space:nowrap">${fmtD(a.sim_date)}</div></div>`).join('') || '<div class="muted">No activity yet today. Open a worker\'s dashboard and take an action.</div>'}</div></div>
+  </div>`;
+}
+async function vSPeople(m){
+  const sub = UI.sp || 'asha';
+  const head = `<div class="filters">${[['asha','ASHA workers'],['cho','CHOs'],['patient','Patients']].map(([k,l])=>`<button class="fchip ${sub===k?'on':''}" onclick="UI.sp='${k}';render()">${l}</button>`).join('')}</div>`;
+  const open = (id,label) => DEMO ? `<button class="btn sm" onclick="demoAs(${id},true)">${label||'Open dashboard'}</button>` : '';
+  if(sub==='asha'){
+    const d = await api('/api/sup/ashas');
+    m.innerHTML = head + `<div class="card"><div class="card-h"><span>ASHA workers (${d.ashas.length})</span><span class="muted small">Daily cap ${d.cap} tasks</span></div><div class="tbl-wrap"><table>
+      <tr><th>Name</th><th>Area</th><th>Patients</th><th>Today's load</th><th>Done</th><th>Not reached</th><th>Call backs open</th><th>Overdue</th><th>Week pts</th><th>Tier</th><th></th></tr>
+      ${d.ashas.map(a=>`<tr><td><b>${esc(a.name)}</b><div class="muted small">${esc(a.username)}</div></td><td>${esc(a.block)}<div class="muted small">${esc(a.villages||'')}</div></td><td>${a.panel}</td>
+        <td style="min-width:110px">${a.open_tasks} / ${a.cap}<div class="cap ${a.open_tasks>a.cap?'over':''}"><div style="width:${Math.min(100,a.open_tasks/a.cap*100)}%"></div></div></td>
+        <td>${a.done_today}</td><td>${a.unreachable_today}</td><td>${a.callbacks}</td><td>${a.overdue?`<span class="tag bad">${a.overdue}</span>`:0}</td><td><b>${a.week_pts}</b></td><td>${a.tier}</td>
+        <td style="white-space:nowrap">${open(a.id)} <button class="btn sm ghost" onclick="download('/api/report/${a.id}','${esc(a.username)}_report.csv')">Report</button></td></tr>`).join('')}</table></div></div>`;
+  } else if(sub==='cho'){
+    const d = await api('/api/sup/chos');
+    m.innerHTML = head + `<div class="card"><div class="card-h">CHOs (${d.chos.length})</div><div class="tbl-wrap"><table>
+      <tr><th>Name</th><th>Block</th><th>Waiting for doctor</th><th>Booked</th><th>Consults today</th><th>Consults total</th><th>Handover pending</th><th>Escalations</th><th>Rating</th><th>Week pts</th><th></th></tr>
+      ${d.chos.map(c=>`<tr><td><b>${esc(c.name)}</b><div class="muted small">${esc(c.facility)}</div></td><td>${esc(c.block)}, ${esc(c.district)}</td><td>${c.requested}</td><td>${c.scheduled}</td><td>${c.done_today}</td><td>${c.done_total}</td><td>${c.handover}</td><td>${c.escalations?`<span class="tag bad">${c.escalations}</span>`:0}</td><td>${c.rating??'-'}</td><td><b>${c.week_pts}</b></td>
+        <td style="white-space:nowrap">${open(c.id)} <button class="btn sm ghost" onclick="download('/api/report/${c.id}','${esc(c.username)}_report.csv')">Report</button></td></tr>`).join('')}</table></div></div>`;
+  } else {
+    const q = UI.sq || '', st = UI.ss || '';
+    const d = await api(`/api/sup/patients?q=${encodeURIComponent(q)}&stage=${st}`);
+    m.innerHTML = head + `<div class="card"><div class="btnrow" style="margin-top:0"><input class="search" id="sq" placeholder="Search by name, patient ID or village" value="${esc(q)}" onkeydown="if(event.key==='Enter'){UI.sq=this.value;render()}">
+      <select class="sel" onchange="UI.ss=this.value;render()">${STAGES.map(([k,l])=>`<option value="${k==='all'?'':k}" ${st===(k==='all'?'':k)?'selected':''}>${l}</option>`).join('')}</select>
+      <button class="btn" onclick="UI.sq=$('#sq').value;render()">Search</button></div>
+      <div class="muted small" style="margin-top:8px">Showing ${d.patients.length} patient(s), highest risk first</div></div>
+      ${d.patients.map(p=>`<div class="card"><div class="row-top"><div><div class="pname">${esc(p.name)} <span class="muted small">${esc(p.patient_ref)}</span></div>
+        <div class="muted small">${esc(p.village)}, ${esc(p.block)} · ASHA ${esc(p.asha_name)} · CHO ${esc(p.cho_name)}</div></div>
+        <div class="right">${prio(p.priority)}<div class="stage small" style="margin-top:4px">${esc(p.episode?p.episode.journey.stage:'')}</div></div></div>
+        ${p.episode?stepper(p.episode.journey,true):''}<div class="muted small">${p.holder?'With: '+esc(holderTxt(p.holder)):''}</div>
+        <div class="btnrow">${DEMO?`<button class="btn sm" onclick="demoAs(${p.user_id},true)">Open patient's app</button>`:''}<button class="btn sm ghost" onclick="patientModal(${p.id})">Full history</button></div></div>`).join('') || '<div class="card empty">No patients found</div>'}`;
+  }
+}
+async function vSOps(m){
+  const a = await api('/api/sup/ashas'); const c = await api('/api/sup/chos');
+  m.innerHTML = `${nightCard()}
+  <div class="grid2">
+    <div class="card"><div class="card-h">Add newly flagged patients</div>
+      <div class="small">Upload the nightly list from the risk model. Each patient goes to the CHO of their block (if they need a teleconsult) or to their village's ASHA (if they need follow-up).</div>
+      <div class="btnrow"><button class="btn ghost sm" onclick="download('/api/sup/upload-template','sahayalink_upload_template.csv')">Download template</button></div>
+      <div class="field"><input type="file" id="upf" accept=".csv"></div><button class="btn" onclick="upload()">Upload and assign</button><div id="upr"></div></div>
+    <div class="card"><div class="card-h">Reports</div>
+      <div class="small">Download a worker's full task report, or the status of every patient.</div>
+      <div class="btnrow"><select class="sel" id="repU" style="flex:1">${a.ashas.map(x=>`<option value="${x.id}|${esc(x.username)}">ASHA ${esc(x.name)} (${esc(x.block)})</option>`).join('')}${c.chos.map(x=>`<option value="${x.id}|${esc(x.username)}">CHO ${esc(x.name)} (${esc(x.block)})</option>`).join('')}</select>
+        <button class="btn" onclick="const v=$('#repU').value.split('|');download('/api/report/'+v[0],v[1]+'_report.csv')">Download</button></div>
+      <div class="btnrow"><button class="btn ghost" onclick="download('/api/sup/export','patient_status.csv')">Download status of all patients</button></div>
+      ${DEMO?`<div class="sec-title">Demo</div><div class="small muted">Start the demo again from day 1 with fresh data.</div><div class="btnrow"><button class="btn bad-o" onclick="resetDemo()">Reset demo data</button></div>`:''}</div>
+  </div>`;
+}
+async function upload(){
+  const f = $('#upf').files[0]; if(!f){ toast('Choose a CSV file first'); return; }
+  const fd = new FormData(); fd.append('file', f);
+  try{ const r = await api('/api/sup/upload',{method:'POST',form:fd});
+    $('#upr').innerHTML = `<div class="note ok">Added ${r.added} patient(s)${r.skipped?`, skipped ${r.skipped}`:''}.<br>${r.assigned.map(x=>`${esc(x.role)} ${esc(x.name)}: ${x.n} ${esc(x.what)}`).join('<br>')}</div>${r.problems.length?`<div class="note bad">${r.problems.map(esc).join('<br>')}</div>`:''}`;
+    toast(`Added ${r.added} patient(s)`);
+  }catch(e){ toast(e.message); }
+}
+async function resetDemo(){ if(!confirm('Reset all demo data back to day 1?')) return; try{ await api('/api/sup/reset-demo',{method:'POST'}); NET=null; await refreshMe(); toast('Demo reset'); render(); }catch(e){ toast(e.message); } }
+async function vSRewards(m){
+  const d = await api('/api/sup/rewards');
+  m.innerHTML = `<div class="card"><div class="card-h"><span>Weekly winners</span><span class="muted small">Week ${fmtD(d.week_start)} to ${fmtD(d.week_end)}</span></div>
+    <div class="small">Announcing picks four winners from this week's points: ASHA of the Week, CHO of the Week, Best Call-back Responder and Hard-to-Reach Hero. Each gets +20 points and everyone is notified.</div>
+    <div class="btnrow"><input class="search" id="rwd" value="Certificate of recognition + performance incentive">
+    <button class="btn" ${d.announced?'disabled':''} onclick="announce()">${d.announced?'Announced for this week':'Announce this week\'s winners'}</button></div></div>
+  <div class="grid2"><div class="card"><div class="card-h">ASHA leaderboard (this week)</div>${bars(d.asha.slice(0,10), x=>x.name+' · '+x.block, x=>x.pts)}</div>
+    <div class="card"><div class="card-h">CHO leaderboard (this week)</div>${bars(d.cho, x=>x.name+' · '+x.block, x=>x.pts)}</div></div>
+  <div class="card"><div class="card-h">Awards given</div>${d.awards.map(a=>`<div class="lrow"><div><b>${esc(a.title)}</b>: ${esc(a.name)} <span class="muted">(${esc(a.role)}, ${esc(a.block)})</span><div class="muted small">${esc(a.week_label)} · ${esc(a.reward)}</div></div><span class="tag ok">+${a.points}</span></div>`).join('') || '<div class="muted">No awards yet</div>'}</div>`;
+}
+async function announce(){ try{ const r = await api('/api/sup/announce-winners',{method:'POST',body:{reward:$('#rwd').value}}); toast('Announced: '+r.winners.map(w=>w.name).join(', ')); render(); }catch(e){ toast(e.message); } }
+async function vSRegions(m){
+  const d = await api('/api/sup/regions');
+  m.innerHTML = `<div class="card"><div class="card-h">Move a village to a different ASHA</div>
+    <div class="small">Use this to balance workload or cover leave. Open first-attempt tasks move with the village; the previous ASHA stays as back-up.</div>
+    <div class="btnrow"><select class="sel" id="rv" style="flex:1">${d.regions.map(r=>`<option value="${esc(r.village)}">${esc(r.village)} (${esc(r.block)}), now ${esc(r.primary_asha||'-')}</option>`).join('')}</select>
+    <select class="sel" id="ra" style="flex:1">${d.ashas.map(a=>`<option value="${a.id}">${esc(a.name)} (${esc(a.block)})</option>`).join('')}</select>
+    <button class="btn" onclick="reassign()">Move village</button></div></div>
+  <div class="card"><div class="card-h">Coverage</div><div class="tbl-wrap"><table><tr><th>Village</th><th>Block</th><th>District</th><th>Main ASHA</th><th>Patients</th><th>Signal</th><th>Road</th></tr>
+    ${d.regions.map(r=>`<tr><td><b>${esc(r.village)}</b></td><td>${esc(r.block)}</td><td>${esc(r.district)}</td><td>${esc(r.primary_asha||'-')}</td><td>${r.patients}</td><td>${esc(r.mobile_connectivity)}</td><td>${esc(r.road_access)}</td></tr>`).join('')}</table></div></div>`;
+}
+async function reassign(){ try{ const r = await api('/api/sup/reassign-village',{method:'POST',body:{village:$('#rv').value,to_user_id:+$('#ra').value}}); toast(`Village moved. ${r.moved} open task(s) moved.`); render(); }catch(e){ toast(e.message); } }
+function vSGov(m){
+  const g = (t, items) => `<div class="card"><div class="card-h">${t}</div><ul style="margin:0;padding-left:18px">${items.map(i=>`<li style="margin-bottom:6px">${i}</li>`).join('')}</ul></div>`;
+  m.innerHTML = `<div class="grid2">
+    ${g('Who does what',['<b>Patient</b> requests a teleconsult or a call back, and tracks their own care journey.','<b>CHO</b> is the bridge: books the right doctor, completes the teleconsult and hands follow-up to the ASHA.','<b>ASHA</b> follows up on medicine, review and tests, and answers patient call backs.','<b>Supervisor</b> oversees everyone, balances workload and announces weekly winners.'])}
+    ${g('One shared status',['Patient, ASHA, CHO and supervisor all see the same journey steps for a patient.','A completed teleconsult closes only that step; the remaining steps stay open until done.','Every action is logged with who, what and when (audit trail).'])}
+    ${g('No patient falls through',['Not reachable by the main ASHA: the other ASHA tries the next day.','Not reachable twice: the case goes to the CHO.','Any open journey without a worker is re-assigned every night.','A task nobody acts on for two days moves on automatically.','Missed teleconsult: the ASHA helps the patient rebook.'])}
+    ${g('Privacy and minimum data',['Phone numbers are masked; calls go through the facility line.','Each worker sees only their own area; the CHO sees only their own patients.','Aligned with ABDM principles. All data here is synthetic.'])}
+    ${g('Fair incentives',['Points reward completed follow-ups, weighted by urgency.','Patient call backs earn the most (15 points).','Reaching far or weak-signal villages earns a bonus.','Every contact attempt counts, so effort is recognised.'])}
+    ${g('Works with weak signal',['The app keeps working when the signal drops.','Actions taken offline are saved on the phone and sent when the signal returns.','Risk uses operational signals (distance, stockouts, pickups), not caste, religion or income.'])}
+  </div>`;
+}
+
+const VIEWS = { updates:vUpdates, p_home:vPHome, p_appts:vPAppts, a_today:vAToday, a_patients:vAPatients, a_rewards:vARewards,
+  c_requests:vCRequests, c_handover:vCHandover, c_treated:vCTreated, c_esc:vCEsc, c_doctors:vCDoctors,
+  s_overview:vSOverview, s_people:vSPeople, s_ops:vSOps, s_rewards:vSRewards, s_regions:vSRegions, s_gov:vSGov };
+
+/* ================================================= boot ================================================= */
+(async function boot(){
+  if (TOKEN){ try{ await startSession(TOKEN, null); return; }catch(e){ store.del('sl_token'); TOKEN=null; } }
+  $('#login').classList.remove('hidden'); loadQuick();
+})();
+</script>
+</body>
+</html>

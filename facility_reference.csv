@@ -1,0 +1,28 @@
+﻿facility_id,facility_name,facility_type,district,block,latitude,longitude,network_context,cho_count,asha_linked_count
+FAC001,Jadcherla PHC-1,PHC,Mahabubnagar,Jadcherla,16.777331,78.039561,Offline-prone,2,4
+FAC002,Jadcherla HWC-1,HWC,Mahabubnagar,Jadcherla,16.757882,77.831472,2G/3G,3,4
+FAC003,Jadcherla HWC-2,HWC,Mahabubnagar,Jadcherla,16.822409,78.00411,4G intermittent,3,3
+FAC004,Balanagar PHC-1,PHC,Mahabubnagar,Balanagar,16.690049,77.900362,4G intermittent,1,2
+FAC005,Balanagar HWC-1,HWC,Mahabubnagar,Balanagar,16.70255,77.907372,4G intermittent,2,2
+FAC006,Balanagar HWC-2,HWC,Mahabubnagar,Balanagar,16.761234,77.842243,4G reliable,2,2
+FAC007,Midjil PHC-1,PHC,Mahabubnagar,Midjil,16.768512,78.006275,2G/3G,3,2
+FAC008,Midjil HWC-1,HWC,Mahabubnagar,Midjil,16.757063,77.846603,Offline-prone,2,5
+FAC009,Midjil HWC-2,HWC,Mahabubnagar,Midjil,16.625165,77.918411,4G reliable,2,3
+FAC010,Devarakonda PHC-1,PHC,Nalgonda,Devarakonda,17.133622,79.308237,2G/3G,3,4
+FAC011,Devarakonda HWC-1,HWC,Nalgonda,Devarakonda,17.200325,79.370978,4G reliable,2,5
+FAC012,Devarakonda HWC-2,HWC,Nalgonda,Devarakonda,17.112512,79.295944,4G reliable,3,6
+FAC013,Chandur PHC-1,PHC,Nalgonda,Chandur,17.069749,79.112485,4G reliable,2,4
+FAC014,Chandur HWC-1,HWC,Nalgonda,Chandur,17.062378,79.114678,4G reliable,3,2
+FAC015,Chandur HWC-2,HWC,Nalgonda,Chandur,17.204834,79.328842,2G/3G,2,2
+FAC016,Nakrekal PHC-1,PHC,Nalgonda,Nakrekal,16.898802,79.288789,4G reliable,3,3
+FAC017,Nakrekal HWC-1,HWC,Nalgonda,Nakrekal,16.946691,79.122091,2G/3G,1,6
+FAC018,Nakrekal HWC-2,HWC,Nalgonda,Nakrekal,17.20127,79.166789,4G intermittent,1,3
+FAC019,Narayankhed PHC-1,PHC,Sangareddy,Narayankhed,17.608046,77.928195,2G/3G,2,4
+FAC020,Narayankhed HWC-1,HWC,Sangareddy,Narayankhed,17.523308,78.007066,Offline-prone,2,3
+FAC021,Narayankhed HWC-2,HWC,Sangareddy,Narayankhed,17.589511,78.156859,4G intermittent,3,2
+FAC022,Zaheerabad PHC-1,PHC,Sangareddy,Zaheerabad,17.496123,78.066176,4G reliable,1,6
+FAC023,Zaheerabad HWC-1,HWC,Sangareddy,Zaheerabad,17.626852,78.180471,4G intermittent,2,2
+FAC024,Zaheerabad HWC-2,HWC,Sangareddy,Zaheerabad,17.471092,78.08825,4G reliable,3,2
+FAC025,Patancheru PHC-1,PHC,Sangareddy,Patancheru,17.531341,77.943664,4G intermittent,1,2
+FAC026,Patancheru HWC-1,HWC,Sangareddy,Patancheru,17.575906,78.029988,4G reliable,2,2
+FAC027,Patancheru HWC-2,HWC,Sangareddy,Patancheru,17.614065,78.236005,4G intermittent,1,3

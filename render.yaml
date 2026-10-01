@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: sahayalink
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh
+    healthCheckPath: /healthz
+    envVars:
+      - key: DEMO_MODE
+        value: "1"
