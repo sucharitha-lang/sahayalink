@@ -40,7 +40,7 @@ CREATE TABLE patients(
   known_ncd TEXT, vulnerability TEXT, phone_last4 TEXT,
   asha_id INTEGER, alt_asha_id INTEGER, cho_id INTEGER,
   distance_km REAL, connectivity TEXT, is_hard INTEGER DEFAULT 0,
-  risk_pct REAL, priority TEXT, risk_reason TEXT, user_id INTEGER);
+  risk_pct REAL, priority TEXT, risk_reason TEXT, user_id INTEGER, is_demo INTEGER DEFAULT 0);
 CREATE TABLE episodes(
   id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER,
   source TEXT,              -- patient_request | model_flag | upload | seed
@@ -338,6 +338,23 @@ def build(db_path=DB, start_date=None):
                      reason=CALLBACK_REASONS[i % len(CALLBACK_REASONS)],
                      note='Please call me after 5 pm' if i % 2 else '')
             notify(user_id, 'Your call-back request was sent to your ASHA worker.', 'request')
+
+    # ---- the live-demo patient: starts with NO request, so a presenter can show the whole journey ----
+    dv = 'Gundlapally'
+    dg = geo[norm(dv)]
+    dd, db_ = dg['district'], dg['block']
+    c.execute('INSERT INTO users VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+              (uid, 'demo', 'Venkatesh Rao', 'PATIENT', pin('1111'), '4821', dd, db_, dv, '', None))
+    demo_uid = uid; uid += 1
+    c.execute('''INSERT INTO patients(patient_ref,name,age,gender,village,block,district,language,diagnosis_group,
+        known_ncd,vulnerability,phone_last4,asha_id,alt_asha_id,cho_id,distance_km,connectivity,is_hard,risk_pct,
+        priority,risk_reason,user_id,is_demo) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+              ('P900001', 'Venkatesh Rao', 58, 'M', dv, db_, dd, 'Telugu', 'Hypertension+Diabetes',
+               'Hypertension+Diabetes', 'Elderly living alone', '4821', primary_asha[dv], alt_asha[dv],
+               block_cho[(dd, db_)], 18.5, dg['mobile_connectivity'], 1, 94.0, 'Critical',
+               'BP and sugar uncontrolled; lives alone; 18 km from the PHC', demo_uid, 1))
+    c.execute('UPDATE users SET patient_id=? WHERE id=?', (c.lastrowid, demo_uid))
+    notify(demo_uid, 'Welcome to SahayaLink. Request a teleconsult whenever you need a doctor.', 'info')
 
     # ---- point history for the past week so leaderboards and weekly winners are meaningful ----
     for (u, role) in c.execute("SELECT id, role FROM users WHERE role IN ('ASHA','CHO')").fetchall():

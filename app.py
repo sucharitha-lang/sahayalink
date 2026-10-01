@@ -289,8 +289,11 @@ def demo_people(q: str = ''):
             WHERE lower(p.name) LIKE ? OR lower(p.patient_ref) LIKE ? OR lower(p.village) LIKE ? LIMIT 20''',
                            (like, like, like)).fetchall()
     else:
-        # one example patient for each stage of the journey
+        # the live-demo patient first, then one example patient for each stage of the journey
         pats = []
+        r = con.execute('SELECT p.id pid,p.user_id id,p.name,p.patient_ref,p.village FROM patients p WHERE is_demo=1').fetchone()
+        if r:
+            d = dict(r); d['label'] = 'LIVE DEMO: start here'; pats.append(d)
         picks = [("e.consult_status='requested' AND e.source='patient_request'", 'Requested a teleconsult'),
                  ("e.consult_status='scheduled'", 'Teleconsult scheduled'),
                  ("e.handover_status='pending'", 'Consult done, handover tonight'),
@@ -551,7 +554,7 @@ def task_list(con, user_id, include_closed_today=True):
     out = [task_view(con, t) for t in ts]
     kind_rank = {'callback': 0, 'reconnect': 1, 'escalation': 2, 'followup': 3}
     pr = {'Critical': 0, 'High': 1}
-    out.sort(key=lambda t: (t['status'] != 'open', kind_rank.get(t['kind'], 9), not t['overdue'],
+    out.sort(key=lambda t: (t['status'] != 'open', not t['patient'].get('is_demo'), kind_rank.get(t['kind'], 9), not t['overdue'],
                             pr.get(t['patient']['priority'], 2), -(t['patient']['risk_pct'] or 0)))
     return out
 
@@ -595,7 +598,7 @@ def asha_today(user=Depends(current_user)):
 def asha_patients(user=Depends(current_user)):
     need(user, 'ASHA')
     con = db()
-    ps = con.execute('SELECT id FROM patients WHERE asha_id=? ORDER BY risk_pct DESC', (user['id'],)).fetchall()
+    ps = con.execute('SELECT id FROM patients WHERE asha_id=? ORDER BY is_demo DESC, risk_pct DESC', (user['id'],)).fetchall()
     out = []
     for (pid,) in ps:
         p = patient_card(con, pid)
@@ -643,7 +646,7 @@ def cho_requests(user=Depends(current_user)):
     con = db()
     eps = [episode_full(con, r[0]) for r in con.execute(
         '''SELECT e.id FROM episodes e JOIN patients p ON p.id=e.patient_id WHERE e.cho_id=? AND
-        e.consult_status IN ('requested','scheduled') ORDER BY e.consult_status, CASE p.priority WHEN 'Critical' THEN 0
+        e.consult_status IN ('requested','scheduled') ORDER BY e.consult_status, p.is_demo DESC, CASE p.priority WHEN 'Critical' THEN 0
         ELSE 1 END, e.created_date, p.risk_pct DESC''', (user['id'],))]
     for e in eps:
         e['patient'] = patient_card(con, e['patient_id'])
@@ -773,7 +776,8 @@ def cho_treated(user=Depends(current_user)):
     need(user, 'CHO')
     con = db()
     eps = [episode_full(con, r[0]) for r in con.execute(
-        "SELECT id FROM episodes WHERE cho_id=? AND consult_status='completed' ORDER BY status, consult_date DESC", (user['id'],))]
+        '''SELECT e.id FROM episodes e JOIN patients p ON p.id=e.patient_id WHERE e.cho_id=? AND e.consult_status='completed'
+        ORDER BY p.is_demo DESC, e.status, e.consult_date DESC''', (user['id'],))]
     for e in eps:
         e['patient'] = patient_card(con, e['patient_id'])
         e['holder'] = holder_of(con, e['id'])
@@ -1002,7 +1006,7 @@ def sup_patients(q: str = '', stage: str = '', user=Depends(current_user)):
         like = f'%{q.strip().lower()}%'
         sql += ' WHERE lower(name) LIKE ? OR lower(patient_ref) LIKE ? OR lower(village) LIKE ?'
         args = (like, like, like)
-    sql += ' ORDER BY risk_pct DESC'
+    sql += ' ORDER BY is_demo DESC, risk_pct DESC'
     out = []
     for (pid,) in con.execute(sql, args).fetchall():
         p = patient_card(con, pid)
@@ -1231,6 +1235,16 @@ async def sup_upload(file: UploadFile = File(...), user=Depends(current_user)):
     log(con, user['id'], 'upload', detail=f'{added} added, {skipped} skipped')
     con.commit(); con.close()
     return {'ok': True, 'added': added, 'skipped': skipped, 'assigned': summary, 'problems': problems[:10]}
+
+
+@app.post('/api/demo/reset')
+def demo_reset():
+    """Put every screen back to Day 1 with the original data. Only available in demo mode."""
+    if not DEMO:
+        raise HTTPException(404, 'Demo mode is off')
+    import seed
+    seed.build(DB)
+    return {'ok': True}
 
 
 @app.post('/api/sup/reset-demo')
