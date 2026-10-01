@@ -32,6 +32,9 @@ button,input,select,textarea{font-family:Arial,Helvetica,sans-serif;font-size:14
 .field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
 .field textarea{min-height:84px;resize:vertical}
 .err{color:var(--bad);font-size:13px;min-height:18px}
+.live{background:var(--t50);border:2px solid var(--t500);border-radius:12px;padding:12px;margin-top:12px}
+.live b{color:var(--t800)}
+.tag.live-t{background:#fff;color:var(--t800);border:2px solid var(--t600)}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .quick button{padding:12px;border-radius:10px;border:1px solid var(--t200);background:var(--t50);color:var(--t800);font-weight:700;cursor:pointer;text-align:left}
 .quick button span{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
@@ -202,6 +205,9 @@ tr:hover td{background:var(--t50)}
       <div class="card" id="demoCard">
         <h3>Explore the demo</h3>
         <div class="muted small">Open any person's dashboard to see how the whole flow connects. In a real rollout each person sees only their own screen.</div>
+        <div class="live"><b>Live demo: one patient, start to finish</b>
+          <div class="muted small" style="margin:4px 0 8px">Venkatesh Rao has not asked for anything yet. Start as him, request a teleconsult, then follow him through the CHO, the night handover and the ASHA until his review visit.</div>
+          <div class="btnrow" style="margin-top:0"><button class="btn" onclick="startLive()">Start live demo as the patient</button><button class="btn ghost" onclick="restartDemo()">Restart demo from Day 1</button></div></div>
         <div class="quick" id="quickPicks"></div>
         <button class="btn ghost" style="width:100%;margin-top:10px" onclick="openPicker()">Choose any person</button>
       </div>
@@ -219,6 +225,7 @@ tr:hover td{background:var(--t50)}
       <span class="chip" id="netChip">Online</span>
       <button class="hbtn" onclick="go('updates')">Updates<span class="cnt hidden" id="unread"></span></button>
       <button class="hbtn" id="switchBtn" onclick="openPicker()">Switch person</button>
+      <button class="hbtn" id="restartBtn" onclick="restartDemo()">Restart demo</button>
       <button class="hbtn" onclick="logout()">Log out</button>
     </div>
   </header>
@@ -336,7 +343,7 @@ async function startSession(token, tab){
   $('#hName').textContent = ME.name;
   const roleTxt = {PATIENT:'Patient', ASHA:'ASHA worker', CHO:'Community Health Officer', SUPERVISOR:'Programme supervisor'}[ME.role];
   $('#hRole').textContent = roleTxt + (ME.block ? ' · ' + ME.block : '') + (ME.district ? ', ' + ME.district : '');
-  $('#switchBtn').classList.toggle('hidden', !DEMO);
+  $('#switchBtn').classList.toggle('hidden', !DEMO); $('#restartBtn').classList.toggle('hidden', !DEMO);
   setDay(); setUnread(ME.unread);
   const ret = JSON.parse(store.sget('sl_return')||'null');
   const va = $('#viewAs');
@@ -353,13 +360,28 @@ function logout(silent){
   if(silent!==true) toast('Signed out');
 }
 
+async function restartDemo(){
+  if(!confirm('Restart the demo? Every screen goes back to Day 1 with the original data, and all changes made during the demo are cleared.')) return;
+  try{
+    await api('/api/demo/reset',{method:'POST'});
+    store.del('sl_queue'); NET = null; Object.keys(UI).forEach(k=>delete UI[k]);
+    TOKEN=null; ME=null; store.del('sl_token'); store.sdel('sl_return'); await clearApiCache();
+    closeModal(); $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); await loadQuick();
+    toast('Demo restarted. Everything is back to Day 1.');
+  }catch(e){ toast(e.message); }
+}
+async function startLive(){
+  try{ if(!PEOPLE) await loadQuick(); const d = PEOPLE.patients.find(x=>/LIVE DEMO/.test(x.label||'')); if(!d) throw new Error('Live demo patient not found. Press Restart demo.'); await demoAs(d.id); }
+  catch(e){ toast(e.message); }
+}
+const liveTag = p => p && p.is_demo ? '<span class="tag live-t">Live demo patient</span>' : '';
 let PEOPLE = null;
 async function loadQuick(){
   try{
     PEOPLE = await api('/api/demo/people');
     const pick = (lbl, sub, id) => `<button onclick="demoAs(${id})">${lbl}<span>${esc(sub)}</span></button>`;
     const pt = PEOPLE.patients[0], a = PEOPLE.ashas.find(x=>x.tasks>0)||PEOPLE.ashas[0], c = PEOPLE.chos[0], s = PEOPLE.supervisor[0];
-    $('#quickPicks').innerHTML = pick('Patient', pt.name+', '+pt.village, pt.id) + pick('ASHA worker', a.name+', '+a.block, a.id)
+    $('#quickPicks').innerHTML = pick('Patient (live demo)', pt.name+', '+pt.village, pt.id) + pick('ASHA worker', a.name+', '+a.block, a.id)
       + pick('CHO', c.name+', '+c.block, c.id) + pick('Supervisor', 'District programme office', s.id);
   }catch(e){ $('#demoCard').classList.add('hidden'); }
 }
@@ -419,7 +441,7 @@ function taskCard(t, role){
         <div class="muted small">${esc(p.village)} · ${p.age??''}${p.gender?' '+esc(p.gender):''} · ${esc(p.diagnosis_group||'')} · ${esc(p.language||'')} · ${p.distance_km?p.distance_km+' km':''} ${p.connectivity?'· '+esc(p.connectivity)+' signal':''}</div></div>
       <div class="right">${prio(p.priority)}<div class="muted small" style="margin-top:4px">${Math.round(p.risk_pct||0)}% risk</div></div>
     </div>
-    <div class="tags">${kb?`<span class="tag strong">${kb}</span>`:''}<span class="tag">${esc(t.step_label)}</span>${t.attempt_no>1?`<span class="tag">Attempt ${t.attempt_no}</span>`:''}${t.overdue?'<span class="tag bad">Overdue</span>':''}${p.is_hard?'<span class="tag">Hard to reach</span>':''}</div>
+    <div class="tags">${liveTag(p)}${kb?`<span class="tag strong">${kb}</span>`:''}<span class="tag">${esc(t.step_label)}</span>${t.attempt_no>1?`<span class="tag">Attempt ${t.attempt_no}</span>`:''}${t.overdue?'<span class="tag bad">Overdue</span>':''}${p.is_hard?'<span class="tag">Hard to reach</span>':''}</div>
     <div class="origin">${esc(t.origin_label)}</div>
     ${t.kind==='callback'?`<div class="quote">"${esc(t.request_reason)}"${t.request_note?' · '+esc(t.request_note):''}</div>`:''}
     ${e && e.medicine_self_reported && t.step==='medicine' && open ? '<div class="note ok">The patient says the medicine was collected. Please confirm with them.</div>' : ''}
@@ -583,7 +605,7 @@ async function vAPatients(m){
   m.innerHTML = `<div class="regionbar">You look after <b>${d.patients.length} patients</b>. Each card shows where the patient is in their care journey and who is helping them now.</div>
   ${stageChips(d.patients,'ap',gk)}
   ${list.map(p=>`<div class="card"><div class="row-top"><div><div class="pname">${esc(p.name)} <span class="muted small">${esc(p.patient_ref)}</span></div>
-      <div class="muted small">${esc(p.village)} · ${p.age??''} ${esc(p.gender||'')} · ${esc(p.diagnosis_group||'')}</div></div>
+      <div class="muted small">${esc(p.village)} · ${p.age??''} ${esc(p.gender||'')} · ${esc(p.diagnosis_group||'')}</div>${liveTag(p)}</div>
       <div class="right">${prio(p.priority)}<div class="stage small" style="margin-top:4px">${esc(p.episode?p.episode.journey.stage:'')}</div></div></div>
     ${p.episode?stepper(p.episode.journey,true):''}
     <div class="muted small">${p.holder?'With: '+esc(holderTxt(p.holder)):''}${p.episode&&p.episode.doctor_name?` · Doctor: ${esc(p.episode.doctor_name)}`:''}</div>
@@ -617,7 +639,7 @@ async function vCRequests(m){
   <div class="sec-title">Booked for today (${d.scheduled.length})</div>
   ${d.scheduled.map(e=>`<div class="task ${e.patient.priority==='Critical'?'crit':''}"><div class="row-top"><div><div class="pname">${esc(e.patient.name)} <span class="muted small">${esc(e.patient.patient_ref)}</span></div>
       <div class="muted small">${esc(e.patient.village)} · ${e.patient.age??''} ${esc(e.patient.gender||'')} · ${esc(e.patient.language||'')}</div></div><div class="right">${prio(e.patient.priority)}</div></div>
-    <div class="tags">${srcTag(e)}<span class="tag">${esc(e.category||'')}</span></div>
+    <div class="tags">${liveTag(e.patient)}${srcTag(e)}<span class="tag">${esc(e.category||'')}</span></div>
     <div class="quote">${esc(e.complaint||'')}</div>
     <div class="note"><b>${esc(e.doctor_name)}</b> (${esc(e.specialty)}, ${esc(e.hospital_name)}) at <b>${esc(fmtSlot(e.slot))}</b>, ${esc(e.doctor_mode)} call</div>
     <div class="card" style="margin:10px 0 0;background:var(--t50)"><div class="b small">After the consult, what does the patient need?</div>
@@ -631,7 +653,7 @@ async function vCRequests(m){
   ${d.requested.map(e=>`<div class="task ${e.patient.priority==='Critical'?'crit':''}"><div class="row-top"><div><div class="pname">${esc(e.patient.name)} <span class="muted small">${esc(e.patient.patient_ref)}</span></div>
       <div class="muted small">${esc(e.patient.village)} · ${e.patient.age??''} ${esc(e.patient.gender||'')} · ${esc(e.patient.language||'')} · asked ${fmtD(e.created_date)}</div></div>
       <div class="right">${prio(e.patient.priority)}<div class="muted small" style="margin-top:4px">${Math.round(e.patient.risk_pct||0)}% risk</div></div></div>
-    <div class="tags">${srcTag(e)}<span class="tag">${esc(e.category||'')}</span>${e.preferred_slot?`<span class="tag">Prefers ${esc(e.preferred_slot)}</span>`:''}${e.mode?`<span class="tag">${esc(e.mode)}</span>`:''}</div>
+    <div class="tags">${liveTag(e.patient)}${srcTag(e)}<span class="tag">${esc(e.category||'')}</span>${e.preferred_slot?`<span class="tag">Prefers ${esc(e.preferred_slot)}</span>`:''}${e.mode?`<span class="tag">${esc(e.mode)}</span>`:''}</div>
     <div class="quote">${esc(e.complaint||'')}</div>
     <div class="btnrow"><select class="sel" id="doc${e.id}" style="flex:1;min-width:240px">${docOptions(n, e.patient.district)}</select>
       <select class="sel" id="slot${e.id}">${SLOTS.map(x=>`<option>${x}</option>`).join('')}</select>
@@ -661,7 +683,7 @@ async function vCTreated(m){
   m.innerHTML = `<div class="regionbar">Patients you consulted, and where each one is now. You only see your own patients; the follow-up itself is run by the ASHA workers.</div>
   ${stageChips(d.episodes,'ct',gk)}
   ${list.map(e=>`<div class="card"><div class="row-top"><div><div class="pname">${esc(e.patient.name)} <span class="muted small">${esc(e.patient.patient_ref)}</span></div>
-      <div class="muted small">${esc(e.patient.village)} · consulted ${fmtD(e.consult_date)} with ${esc(e.doctor_name||'')}</div></div>
+      <div class="muted small">${esc(e.patient.village)} · consulted ${fmtD(e.consult_date)} with ${esc(e.doctor_name||'')}</div>${liveTag(e.patient)}</div>
       <div class="right">${prio(e.patient.priority)}<div class="stage small" style="margin-top:4px">${esc(e.journey.stage)}</div></div></div>
     ${stepper(e.journey,true)}
     <div class="muted small">${e.holder?'Being followed up by '+esc(holderTxt(e.holder)):e.status==='closed'?'Journey complete'+(e.rating?' · rated '+e.rating+'/5':''):'Waiting for tonight\'s handover'}</div>
@@ -734,7 +756,7 @@ async function vSPeople(m){
       <button class="btn" onclick="UI.sq=$('#sq').value;render()">Search</button></div>
       <div class="muted small" style="margin-top:8px">Showing ${d.patients.length} patient(s), highest risk first</div></div>
       ${d.patients.map(p=>`<div class="card"><div class="row-top"><div><div class="pname">${esc(p.name)} <span class="muted small">${esc(p.patient_ref)}</span></div>
-        <div class="muted small">${esc(p.village)}, ${esc(p.block)} · ASHA ${esc(p.asha_name)} · CHO ${esc(p.cho_name)}</div></div>
+        <div class="muted small">${esc(p.village)}, ${esc(p.block)} · ASHA ${esc(p.asha_name)} · CHO ${esc(p.cho_name)}</div>${liveTag(p)}</div>
         <div class="right">${prio(p.priority)}<div class="stage small" style="margin-top:4px">${esc(p.episode?p.episode.journey.stage:'')}</div></div></div>
         ${p.episode?stepper(p.episode.journey,true):''}<div class="muted small">${p.holder?'With: '+esc(holderTxt(p.holder)):''}</div>
         <div class="btnrow">${DEMO?`<button class="btn sm" onclick="demoAs(${p.user_id},true)">Open patient's app</button>`:''}<button class="btn sm ghost" onclick="patientModal(${p.id})">Full history</button></div></div>`).join('') || '<div class="card empty">No patients found</div>'}`;
@@ -753,7 +775,7 @@ async function vSOps(m){
       <div class="btnrow"><select class="sel" id="repU" style="flex:1">${a.ashas.map(x=>`<option value="${x.id}|${esc(x.username)}">ASHA ${esc(x.name)} (${esc(x.block)})</option>`).join('')}${c.chos.map(x=>`<option value="${x.id}|${esc(x.username)}">CHO ${esc(x.name)} (${esc(x.block)})</option>`).join('')}</select>
         <button class="btn" onclick="const v=$('#repU').value.split('|');download('/api/report/'+v[0],v[1]+'_report.csv')">Download</button></div>
       <div class="btnrow"><button class="btn ghost" onclick="download('/api/sup/export','patient_status.csv')">Download status of all patients</button></div>
-      ${DEMO?`<div class="sec-title">Demo</div><div class="small muted">Start the demo again from day 1 with fresh data.</div><div class="btnrow"><button class="btn bad-o" onclick="resetDemo()">Reset demo data</button></div>`:''}</div>
+      ${DEMO?`<div class="sec-title">Demo</div><div class="small muted">Start the demo again from day 1 with fresh data.</div><div class="btnrow"><button class="btn bad-o" onclick="restartDemo()">Restart demo from Day 1</button></div>`:''}</div>
   </div>`;
 }
 async function upload(){
